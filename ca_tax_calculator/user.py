@@ -58,17 +58,50 @@ class User:
         self._province_code = code
         self._province_name = CanadianTaxData.get_jurisdiction_name(code)
 
+    # def prompt_residency(self) -> None:
+    #     """Interactive prompt that loops until a valid Canadian province/territory is set."""
+    #     print("\n--- STEP 1: ESTABLISH CANADIAN TAX RESIDENCY (AS OF DEC 31, 2026) ---")
+    #     print("You may enter a 2-letter code (e.g., ON, BC, QC) or full name (e.g., Ontario).")
+    #     while not self.is_residency_established:
+    #         user_input = input("Enter Province or Territory of residence: ")
+    #         try:
+    #             self.set_residency(user_input)
+    #             print(f"Residency confirmed: {self._province_name} ({self._province_code})\n")
+    #         except ValueError as e:
+    #             print(f"[Residency Error] {e}\n")
+
     def prompt_residency(self) -> None:
-        """Interactive prompt that loops until a valid Canadian province/territory is set."""
+        """Displays a numbered menu of Canadian provinces/territories until a valid choice is made."""
+        # Sort jurisdictions alphabetically by full name
+        jurisdictions = sorted(
+            CanadianTaxData.JURISDICTION_NAMES.items(),
+            key=lambda item: item[1]
+        )
+        marker_width = 120
         print("\n--- STEP 1: ESTABLISH CANADIAN TAX RESIDENCY (AS OF DEC 31, 2026) ---")
-        print("You may enter a 2-letter code (e.g., ON, BC, QC) or full name (e.g., Ontario).")
+        for idx, (code, name) in enumerate(jurisdictions, start=1):
+            print(f"      {idx:>2}. {name} ({code})")
+        print("-" * marker_width)
+
         while not self.is_residency_established:
-            user_input = input("Enter Province or Territory of residence: ")
+            choice = input("Select a number (1-13) or enter province/territory code/name: ").strip()
             try:
-                self.set_residency(user_input)
+                if choice.isdigit():
+                    num = int(choice)
+                    if 1 <= num <= len(jurisdictions):
+                        selected_code = jurisdictions[num - 1][0]
+                        self.set_residency(selected_code)
+                    else:
+                        print(f"[Residency Error] Please select a number between 1 and {len(jurisdictions)}.\n")
+                        continue
+                else:
+                    # Also supports direct code/name entry (e.g., "ON" or "Ontario")
+                    self.set_residency(choice)
+
                 print(f"Residency confirmed: {self._province_name} ({self._province_code})\n")
             except ValueError as e:
                 print(f"[Residency Error] {e}\n")
+
 
     @property
     def is_residency_established(self) -> bool:
@@ -113,18 +146,18 @@ class User:
         """
         if not self.is_residency_established:
             self.prompt_residency()
-
+        marker_width = 120
         while True:
-            print("=" * 60)
-            print(f"2026 TAX DATA COLLECTION | {self._name.upper()} ({self._province_name})")
-            print("=" * 60)
-            print("1. Enter/Edit Taxable Income (T4, Self-Employed, Dividends, Cap Gains, etc.)")
-            print("2. Enter/Edit Non-Taxable Income (TFSA, Primary Residence, Gifts, CCB/GST)")
-            print("3. Enter/Edit Tax Deductions (RRSP, FHSA, Child Care, Union Dues)")
-            print("4. Enter/Edit Non-Refundable Credit Inputs (CPP/EI, Donations, Medical, Tuition)")
-            print("5. Review Current Totals & Summary")
-            print("6. Finalize & Proceed to Tax Calculation")
-            print("-" * 60)
+            print("=" * marker_width)
+            print(f"    2026 TAX DATA COLLECTION | {self._name.upper()} ({self._province_name})")
+            print("=" * marker_width)
+            print("     1. Enter/Edit Taxable Income (T4, Self-Employed, Dividends, Cap Gains, etc.)")
+            print("     2. Enter/Edit Non-Taxable Income (TFSA, Primary Residence, Gifts, CCB/GST)")
+            print("     3. Enter/Edit Tax Deductions (RRSP, FHSA, Child Care, Union Dues)")
+            print("     4. Enter/Edit Non-Refundable Credit Inputs (CPP/EI, Donations, Medical, Tuition)")
+            print("     5. Review Current Totals & Summary")
+            print("     6. Finalize & Proceed to Tax Calculation")
+            print("-" * marker_width)
 
             choice = input("Select a category (1-6): ").strip()
 
@@ -170,6 +203,7 @@ class User:
         self._taxable_sources["pension_rrsp_ei_income"] = self._prompt_amount(
             "Pension, CPP/OAS, EI, or RRSP Withdrawals", self._taxable_sources["pension_rrsp_ei_income"]
         )
+        print("---\n")
 
     def _menu_non_taxable_income(self) -> None:
         print("\n--- NON-TAXABLE INCOME & RECEIPTS (EXCLUDED FROM TAXABLE INCOME) ---")
@@ -185,6 +219,7 @@ class User:
         self._non_taxable_sources["gov_benefits_ccb_gst"] = self._prompt_amount(
             "Tax-Free Gov Benefits (CCB, GST/HST Credit, Trillium/Rebates)", self._non_taxable_sources["gov_benefits_ccb_gst"]
         )
+        print("---\n")
 
     def _menu_deductions(self) -> None:
         print("\n--- TAX DEDUCTIONS (REDUCE NET & TAXABLE INCOME) ---")
@@ -200,6 +235,7 @@ class User:
         self._deductions["moving_employment_expenses"] = self._prompt_amount(
             "Allowable Employment / Moving Expenses", self._deductions["moving_employment_expenses"]
         )
+        print("---\n")
 
     def _menu_tax_credits(self) -> None:
         print("\n--- NON-REFUNDABLE TAX CREDIT INPUTS ---")
@@ -215,6 +251,7 @@ class User:
         self._tax_credits_inputs["tuition_fees"] = self._prompt_amount(
             "Eligible Post-Secondary Tuition Fees (T2202)", self._tax_credits_inputs["tuition_fees"]
         )
+        print("---\n")
 
     # --- Taxable vs. Non-Taxable Calculations & Structured Output ---
 
@@ -294,8 +331,8 @@ class User:
     def _print_quick_review(self) -> None:
         profile = self.get_structured_tax_profile()
         print("\n--- CURRENT SUMMARY PREVIEW ---")
-        print(f"Total Gross Cash Inflow   : ${profile['non_taxable']['total_gross_cash_inflow']:,.2f}")
-        print(f"Non-Taxable Income        : ${profile['non_taxable']['total_non_taxable_income']:,.2f}")
-        print(f"CRA Line 15000 Income     : ${profile['taxable']['line_15000_total_income']:,.2f}")
-        print(f"Total Deductions          : -${profile['taxable']['total_deductions']:,.2f}")
-        print(f"Net Taxable Income        : ${profile['taxable']['net_taxable_income']:,.2f}\n")
+        print(f"    Total Gross Cash Inflow   : ${profile['non_taxable']['total_gross_cash_inflow']:,.2f}")
+        print(f"    Non-Taxable Income        : ${profile['non_taxable']['total_non_taxable_income']:,.2f}")
+        print(f"    CRA Line 15000 Income     : ${profile['taxable']['line_15000_total_income']:,.2f}")
+        print(f"    Total Deductions          : -${profile['taxable']['total_deductions']:,.2f}")
+        print(f"    Net Taxable Income        : ${profile['taxable']['net_taxable_income']:,.2f}\n")

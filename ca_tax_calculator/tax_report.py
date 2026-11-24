@@ -68,16 +68,16 @@ class TaxReport:
         eff_rate = self.calculate_effective_cash_tax_rate()
         marginal_rate = self.calculate_combined_marginal_rate()
 
-        width = 68
+        width = 75
         print("\n" + "=" * width)
-        print(f"2026 CANADIAN PERSONAL INCOME TAX REPORT (T1 SUMMARY)")
-        print(f"Taxpayer: {residency['name']} | Residency: {residency['province_name']} ({residency['province_code']})")
+        print(f" 2026 CANADIAN PERSONAL INCOME TAX REPORT (T1 SUMMARY)")
+        print(f"Taxpayer: {residency['name']} | Residency: {residency['province_name']} ({residency['province_code']})".center(width - 20))
         print("=" * width)
 
         # Section 1: Income & Taxability Reconciliation
         print("\n[1] INCOME & TAXABILITY RECONCILIATION")
         print("-" * width)
-        print(f"  Total Actual Gross Cash Inflow        : ${non_taxable['total_gross_cash_inflow']:>14,.2f}")
+        print(f"  Total Actual Gross Cash Inflow        :  ${non_taxable['total_gross_cash_inflow']:>13,.2f}")
         print(f"  Less: Non-Taxable Receipts            : -${non_taxable['total_non_taxable_income']:>13,.2f}")
         if non_taxable["exempt_capital_gains_portion"] > 0:
             print(f"  Less: Exempt 50% Capital Gains        : -${non_taxable['exempt_capital_gains_portion']:>13,.2f}")
@@ -90,40 +90,40 @@ class TaxReport:
             gross_nel = taxable["grossed_up_non_eligible_dividends"]
             print(f"  Add: Non-Elig. Div. Gross-Up (15%)    : +${(gross_nel - actual_nel):>13,.2f}")
         print("-" * width)
-        print(f"  CRA Line 15000 - Total Income         : ${taxable['line_15000_total_income']:>14,.2f}")
+        print(f"  CRA Line 15000 - Total Income         :  ${taxable['line_15000_total_income']:>13,.2f}")
         print(f"  Less: Total Deductions (RRSP/FHSA/etc): -${taxable['total_deductions']:>13,.2f}")
-        print(f"  CRA Line 26000 - Taxable Income       : ${taxable['net_taxable_income']:>14,.2f}")
+        print(f"  CRA Line 26000 - Taxable Income       :  ${taxable['net_taxable_income']:>13,.2f}")
 
         # Section 2: Federal Tax Breakdown
         print("\n[2] FEDERAL INCOME TAX BREAKDOWN (CRA)")
         print("-" * width)
-        print(f"  Gross Federal Tax on Brackets         : ${self._fed['gross_bracket_tax']:>14,.2f}")
-        print(f"  Federal BPA Claimed                   : ${self._fed['federal_bpa_claimed']:>14,.2f}")
+        print(f"  Gross Federal Tax on Brackets         :  ${self._fed['gross_bracket_tax']:>13,.2f}")
+        print(f"  Federal BPA Claimed                   :  ${self._fed['federal_bpa_claimed']:>13,.2f}")
         print(f"  Less: Non-Refundable & Donation Cred. : -${(self._fed['base_non_refundable_credits'] + self._fed['donation_credit']):>13,.2f}")
         if self._fed["dividend_tax_credit"] > 0:
             print(f"  Less: Federal Dividend Tax Credit     : -${self._fed['dividend_tax_credit']:>13,.2f}")
         if self._fed["quebec_abatement"] > 0:
             print(f"  Less: Quebec Abatement (16.5%)        : -${self._fed['quebec_abatement']:>13,.2f}")
-        print(f"  Net Federal Tax Payable               : ${self._fed['net_federal_tax']:>14,.2f}")
+        print(f"  Net Federal Tax Payable               :  ${self._fed['net_federal_tax']:>13,.2f}")
 
         # Section 3: Provincial / Territorial Tax Breakdown
         print(f"\n[3] {residency['province_name'].upper()} TAX BREAKDOWN")
         print("-" * width)
-        print(f"  Gross Provincial/Territorial Tax      : ${self._prov['gross_bracket_tax']:>14,.2f}")
-        print(f"  Provincial/Territorial BPA Claimed    : ${self._prov['provincial_bpa_claimed']:>14,.2f}")
+        print(f"  Gross Provincial/Territorial Tax      :  ${self._prov['gross_bracket_tax']:>13,.2f}")
+        print(f"  Provincial/Territorial BPA Claimed    :  ${self._prov['provincial_bpa_claimed']:>13,.2f}")
         print(f"  Less: Non-Refundable & Donation Cred. : -${(self._prov['base_non_refundable_credits'] + self._prov['donation_credit']):>13,.2f}")
         if self._prov["dividend_tax_credit"] > 0:
             print(f"  Less: Provincial Dividend Tax Credit  : -${self._prov['dividend_tax_credit']:>13,.2f}")
         if self._prov["surtax"] > 0:
             print(f"  Add: Ontario Surtax                   : +${self._prov['surtax']:>13,.2f}")
-        print(f"  Net {residency['province_name']} Tax Payable : ${self._prov['net_provincial_tax']:>14,.2f}")
+        print(f"  Net {residency['province_name']} Tax Payable : ${self._prov['net_provincial_tax']:>13,.2f}")
 
         # Section 4: Final Summary & Rates
         print("\n[4] FINAL SUMMARY & TAX RATES")
         print("-" * width)
-        print(f"  Total Combined Income Tax Payable     : ${total_tax:>14,.2f}")
-        print(f"  Combined Marginal Tax Rate            : {marginal_rate:>14.2f}%")
-        print(f"  Average Tax Rate (on Taxable Income)  : {avg_rate:>14.2f}%")
-        print(f"  Effective Tax Rate (on Gross Cash)    : {eff_rate:>14.2f}%")
-        print(f"  Net After-Tax Cash Retained           : ${net_cash:>14,.2f}")
+        print(f"  Total Combined Income Tax Payable     :  ${total_tax:>13,.2f}")
+        print(f"  Combined Marginal Tax Rate            : {marginal_rate:>13.2f}%")
+        print(f"  Average Tax Rate (on Taxable Income)  : {avg_rate:>13.2f}%")
+        print(f"  Effective Tax Rate (on Gross Cash)    : {eff_rate:>13.2f}%")
+        print(f"  Net After-Tax Cash Retained           :  ${net_cash:>13,.2f}")
         print("=" * width + "\n")

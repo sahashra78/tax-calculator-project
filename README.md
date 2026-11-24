@@ -52,7 +52,7 @@ canadian-tax-calculator/
 1. Clone or download the repository into a single directory containing all seven `.py` files.
 2. Open a terminal in the project folder and run:
    ```bash
-   python main.py
+   python us_main.py
    ```
 
 ---

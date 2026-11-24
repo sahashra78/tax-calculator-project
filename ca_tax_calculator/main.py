@@ -10,19 +10,19 @@ class TaxAppCLI:
     Main Command-Line Interface controller for the 2026 Canadian
     Federal & Provincial/Territorial Income Tax Calculator.
     """
-
     def __init__(self) -> None:
         self._federal_calculator = FederalTaxCalculator()
 
     def display_main_menu(self) -> None:
-        print("\n" + "=" * 60)
-        print("2026 CANADIAN INCOME TAX CALCULATOR (FEDERAL & PROVINCIAL)")
-        print("=" * 60)
-        print("1. Start New Tax Calculation")
-        print("2. View Supported Provinces & Territories")
-        print("3. View CRA Non-Taxable Income Guidelines")
-        print("4. Exit")
-        print("-" * 60)
+        marker_width = 120
+        print("\n" + "=" * marker_width)
+        print(" 2026 CANADIAN INCOME TAX CALCULATOR (FEDERAL & PROVINCIAL)")
+        print("=" * marker_width)
+        print("     1. Start New Tax Calculation")
+        print("     2. View Supported Provinces & Territories")
+        print("     3. View CRA Non-Taxable Income Guidelines")
+        print("     4. Exit")
+        print("-" * marker_width)
 
     def _display_supported_jurisdictions(self) -> None:
         print("\n--- SUPPORTED CANADIAN PROVINCES & TERRITORIES (2026) ---")
